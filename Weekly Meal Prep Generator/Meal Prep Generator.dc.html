@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: #f7f1e8; font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; color: #2b2420; }
+  input, textarea, button { font-family: inherit; }
+  textarea { resize: vertical; }
+  input:focus, textarea:focus { outline: none; border-color: #c0562f !important; }
+  ::placeholder { color: #b3a795; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</helmet>
+
+<div style="min-height:100vh;">
+
+  <header style="position:sticky;top:0;z-index:20;background:rgba(247,241,232,0.93);backdrop-filter:blur(10px);border-bottom:1px solid #e7dccc;">
+    <div style="max-width:1100px;margin:0 auto;padding:13px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:11px;margin-right:auto;">
+        <div style="width:34px;height:34px;border-radius:9px;background:#c0562f;display:flex;align-items:center;justify-content:center;color:#fff;font:600 19px 'Newsreader',serif;box-shadow:0 2px 0 #a4441f;">m</div>
+        <div>
+          <div style="font:600 19px 'Newsreader',serif;color:#2b2420;line-height:1;">Mise</div>
+          <div style="font:600 10px 'DM Sans';color:#9c8d7d;letter-spacing:.12em;text-transform:uppercase;margin-top:2px;">weekly meal prep</div>
+        </div>
+      </div>
+      <nav style="display:flex;gap:4px;flex-wrap:wrap;">
+        <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="4">
+          <button onClick="{{ n.onClick }}" style="{{ n.style }}">{{ n.label }}</button>
+        </sc-for>
+      </nav>
+    </div>
+  </header>
+
+  <main style="max-width:1100px;margin:0 auto;padding:32px 22px 80px;">
+
+    <!-- ============ GENERATE ============ -->
+    <sc-if value="{{ isGenerate }}" hint-placeholder-val="{{ true }}">
+      <section>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;">
+          <div>
+            <h1 style="font:600 36px/1.04 'Newsreader',serif;color:#2b2420;margin:0;letter-spacing:-0.01em;">This week's plan</h1>
+            <p style="font:400 16px 'DM Sans';color:#6b5f54;margin:8px 0 0;max-width:540px;">{{ weekSummary }}</p>
+          </div>
+          <button onClick="{{ onShuffle }}" style="background:#c0562f;color:#fff;border:none;border-radius:12px;padding:14px 22px;font:600 15px 'DM Sans';cursor:pointer;box-shadow:0 3px 0 #a4441f;white-space:nowrap;">Shuffle week  ↻</button>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:22px 0 12px;">
+          <span style="font:600 11px 'DM Sans';color:#9c8d7d;text-transform:uppercase;letter-spacing:.1em;margin-right:4px;width:46px;">Target</span>
+          <sc-for list="{{ targetChips }}" as="c" hint-placeholder-count="3">
+            <button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button>
+          </sc-for>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px;">
+          <span style="font:600 11px 'DM Sans';color:#9c8d7d;text-transform:uppercase;letter-spacing:.1em;margin-right:4px;width:46px;">Lean</span>
+          <sc-for list="{{ prefChips }}" as="c" hint-placeholder-count="3">
+            <button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button>
+          </sc-for>
+        </div>
+        <p style="font:400 13px 'DM Sans';color:#a89a89;margin:0 0 24px;">{{ prefHint }}</p>
+
+        <sc-if value="{{ hasWeek }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;">
+            <sc-for list="{{ weekRecipes }}" as="r" hint-placeholder-count="4">
+              <div style="{{ r.cardStyle }}">
+                <div style="{{ r.phStyle }}">
+                  <span style="font:500 12px ui-monospace,monospace;color:#a8977f;letter-spacing:.04em;">food photo</span>
+                  <sc-if value="{{ r.hasImg }}" hint-placeholder-val="{{ false }}">
+                    <div style="{{ r.bgImgStyle }}"></div>
+                  </sc-if>
+                  <span style="position:absolute;top:11px;left:11px;background:rgba(43,36,32,0.82);color:#f7f1e8;font:600 11px 'DM Sans';padding:4px 10px;border-radius:20px;letter-spacing:.02em;">{{ r.cuisine }}</span>
+                  <button onClick="{{ r.onBlock }}" title="Never show again" style="{{ r.blockStyle }}">✕</button>
+                  <button onClick="{{ r.onFav }}" title="Favorite" style="{{ r.favStyle }}">{{ r.favIcon }}</button>
+                </div>
+                <div style="padding:16px 17px 15px;display:flex;flex-direction:column;gap:8px;flex:1;">
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <span style="{{ r.reasonStyle }}">{{ r.reasonBadge }}</span>
+                    <span style="font:600 12px 'DM Sans';color:#c0562f;letter-spacing:.02em;">{{ r.metaText }}</span>
+                  </div>
+                  <h3 style="font:600 22px/1.12 'Newsreader',serif;color:#2b2420;margin:0;">{{ r.title }}</h3>
+                  <p style="font:400 14px/1.45 'DM Sans';color:#6b5f54;margin:0;flex:1;">{{ r.description }}</p>
+                  <div style="display:flex;align-items:center;gap:8px;margin-top:2px;flex-wrap:wrap;">
+                    <span style="font:500 12px 'DM Sans';color:#a89a89;">{{ r.tagsText }}</span>
+                    <sc-if value="{{ r.hasSource }}" hint-placeholder-val="{{ false }}">
+                      <a href="{{ r.sourceUrl }}" target="_blank" rel="noopener" style="font:600 11px 'DM Sans';color:#c0562f;text-decoration:none;border-bottom:1px dashed #ddb8a4;">original ↗</a>
+                    </sc-if>
+                  </div>
+                  <div style="display:flex;gap:8px;margin-top:8px;">
+                    <button onClick="{{ r.onCook }}" style="background:#2b2420;color:#f7f1e8;border:none;border-radius:10px;padding:11px 15px;font:600 14px 'DM Sans';cursor:pointer;flex:1;">Cook this  →</button>
+                    <button onClick="{{ r.onReroll }}" title="Swap for another" style="background:#fffdf8;color:#6b5f54;border:1px solid #e7dccc;border-radius:10px;padding:11px 13px;font:600 15px 'DM Sans';cursor:pointer;">↻</button>
+                    <button onClick="{{ r.onLock }}" style="{{ r.lockStyle }}">{{ r.lockLabel }}</button>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noWeek }}" hint-placeholder-val="{{ false }}">
+          <p style="font:400 16px 'DM Sans';color:#9c8d7d;padding:40px 0;">Stocking the pantry…</p>
+        </sc-if>
+      </section>
+    </sc-if>
+
+    <!-- ============ SHOPPING ============ -->
+    <sc-if value="{{ isShopping }}" hint-placeholder-val="{{ false }}">
+      <section>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:8px;">
+          <div>
+            <h1 style="font:600 36px/1.04 'Newsreader',serif;color:#2b2420;margin:0;letter-spacing:-0.01em;">Shopping list</h1>
+            <p style="font:400 16px 'DM Sans';color:#6b5f54;margin:8px 0 0;">{{ shopSummary }}</p>
+          </div>
+          <button onClick="{{ onUncheckAll }}" style="background:#fffdf8;color:#6b5f54;border:1px solid #e7dccc;border-radius:11px;padding:11px 17px;font:600 14px 'DM Sans';cursor:pointer;">Reset checks</button>
+        </div>
+
+        <div style="height:8px;background:#e7dccc;border-radius:20px;overflow:hidden;margin:18px 0 26px;">
+          <div style="{{ shopBarStyle }}"></div>
+        </div>
+
+        <sc-if value="{{ hasShop }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;align-items:start;">
+            <sc-for list="{{ aisleGroups }}" as="g" hint-placeholder-count="4">
+              <div style="background:#fffefb;border:1px solid #e7dccc;border-radius:15px;overflow:hidden;box-shadow:0 1px 2px rgba(43,36,32,0.04);">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:#f1e7d6;border-bottom:1px solid #e7dccc;">
+                  <span style="font:600 12px 'DM Sans';color:#2b2420;letter-spacing:.08em;text-transform:uppercase;">{{ g.aisle }}</span>
+                  <span style="font:600 12px 'DM Sans';color:#a89a89;">{{ g.countText }}</span>
+                </div>
+                <div>
+                  <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+                    <label onClick="{{ it.onToggle }}" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #f3ead0;cursor:pointer;">
+                      <span style="{{ it.boxStyle }}">{{ it.check }}</span>
+                      <span style="{{ it.textStyle }}">{{ it.label }}</span>
+                    </label>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noShop }}" hint-placeholder-val="{{ false }}">
+          <p style="font:400 16px 'DM Sans';color:#9c8d7d;padding:30px 0;">Generate a week first and your grouped shopping list will appear here.</p>
+        </sc-if>
+      </section>
+    </sc-if>
+
+    <!-- ============ COOK ============ -->
+    <sc-if value="{{ isCook }}" hint-placeholder-val="{{ false }}">
+      <section>
+        <button onClick="{{ onExitCook }}" style="background:transparent;border:none;color:#6b5f54;font:600 14px 'DM Sans';cursor:pointer;padding:0;margin-bottom:18px;">←  Back to week</button>
+        <div style="margin-bottom:18px;">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <span style="font:600 12px 'DM Sans';color:#c0562f;letter-spacing:.02em;text-transform:uppercase;">{{ cookMeta }}</span>
+            <sc-if value="{{ cookHasSource }}" hint-placeholder-val="{{ false }}">
+              <a href="{{ cookSourceUrl }}" target="_blank" rel="noopener" style="font:600 11px 'DM Sans';color:#c0562f;text-decoration:none;background:#fbeee6;padding:3px 10px;border-radius:20px;">View original ↗</a>
+            </sc-if>
+          </div>
+          <h1 style="font:600 34px/1.06 'Newsreader',serif;color:#2b2420;margin:6px 0 0;">{{ cookTitle }}</h1>
+        </div>
+
+        <div style="background:#fffefb;border:1px solid #e7dccc;border-radius:20px;overflow:hidden;box-shadow:0 2px 6px rgba(43,36,32,0.05);">
+          <div style="{{ cookPhStyle }}">
+            <span style="font:500 13px ui-monospace,monospace;color:#a8977f;letter-spacing:.04em;">{{ cookPhLabel }}</span>
+            <sc-if value="{{ cookHasImg }}" hint-placeholder-val="{{ false }}">
+              <div style="{{ cookBgImgStyle }}"></div>
+            </sc-if>
+            <span style="position:absolute;top:14px;left:14px;background:#c0562f;color:#fff;font:600 13px 'DM Sans';padding:6px 13px;border-radius:20px;">{{ cookStepLabel }}</span>
+          </div>
+          <div style="padding:28px 30px 30px;">
+            <p style="font:400 23px/1.5 'Newsreader',serif;color:#2b2420;margin:0;">{{ cookStepText }}</p>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:20px;">
+          <button onClick="{{ onPrev }}" style="{{ cookPrevStyle }}">←  Previous</button>
+          <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:center;">
+            <sc-for list="{{ cookDots }}" as="d" hint-placeholder-count="5">
+              <button onClick="{{ d.onClick }}" style="{{ d.style }}"></button>
+            </sc-for>
+          </div>
+          <button onClick="{{ onNext }}" style="background:#c0562f;color:#fff;border:none;border-radius:11px;padding:13px 22px;font:600 15px 'DM Sans';cursor:pointer;box-shadow:0 3px 0 #a4441f;white-space:nowrap;">{{ cookNextLabel }}</button>
+        </div>
+
+        <div style="margin-top:30px;background:#fffefb;border:1px solid #e7dccc;border-radius:15px;padding:18px 20px;">
+          <h3 style="font:600 13px 'DM Sans';color:#9c8d7d;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px;">Ingredients  ·  {{ cookServings }}</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:7px 18px;">
+            <sc-for list="{{ cookIngredients }}" as="ci" hint-placeholder-count="6">
+              <div style="font:400 14px 'DM Sans';color:#3a322c;border-bottom:1px solid #f1e8da;padding:4px 0;">{{ ci }}</div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ LIBRARY ============ -->
+    <sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ false }}">
+      <section>
+        <div style="margin-bottom:18px;">
+          <h1 style="font:600 36px/1.04 'Newsreader',serif;color:#2b2420;margin:0;letter-spacing:-0.01em;">Recipe library</h1>
+          <p style="font:400 16px 'DM Sans';color:#6b5f54;margin:8px 0 0;">{{ libCount }}</p>
+        </div>
+        <input value="{{ libQuery }}" onChange="{{ onQuery }}" placeholder="Search recipes or cuisines…" style="width:100%;max-width:420px;background:#fffdf8;border:1px solid #e7dccc;border-radius:11px;padding:12px 15px;font:400 15px 'DM Sans';color:#2b2420;margin-bottom:14px;" />
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:24px;">
+          <sc-for list="{{ cuisineChips }}" as="c" hint-placeholder-count="6">
+            <button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button>
+          </sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;">
+          <sc-for list="{{ libRecipes }}" as="r" hint-placeholder-count="6">
+            <div style="background:#fffefb;border:1px solid #e7dccc;border-radius:15px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(43,36,32,0.04);">
+              <div style="{{ r.phStyle }}">
+                <span style="font:500 11px ui-monospace,monospace;color:#a8977f;">food photo</span>
+                <sc-if value="{{ r.hasImg }}" hint-placeholder-val="{{ false }}">
+                  <div style="{{ r.bgImgStyle }}"></div>
+                </sc-if>
+                <span style="position:absolute;top:10px;left:10px;background:rgba(43,36,32,0.82);color:#f7f1e8;font:600 10px 'DM Sans';padding:4px 9px;border-radius:20px;">{{ r.cuisine }}</span>
+                <sc-if value="{{ r.isCustom }}" hint-placeholder-val="{{ false }}">
+                  <span style="position:absolute;top:10px;right:10px;background:#6f7a45;color:#fff;font:600 10px 'DM Sans';padding:4px 9px;border-radius:20px;letter-spacing:.04em;">YOURS</span>
+                </sc-if>
+                <button onClick="{{ r.onBlock }}" title="{{ r.blockTitle }}" style="{{ r.blockStyle }}">{{ r.blockIcon }}</button>
+                <button onClick="{{ r.onFav }}" title="Favorite" style="{{ r.favStyle }}">{{ r.favIcon }}</button>
+              </div>
+              <div style="padding:14px 15px 15px;display:flex;flex-direction:column;gap:7px;flex:1;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                  <span style="font:600 11px 'DM Sans';color:#c0562f;">{{ r.metaText }}</span>
+                  <sc-if value="{{ r.hasSource }}" hint-placeholder-val="{{ false }}">
+                    <a href="{{ r.sourceUrl }}" target="_blank" rel="noopener" style="font:600 10px 'DM Sans';color:#c0562f;text-decoration:none;border-bottom:1px dashed #ddb8a4;">original ↗</a>
+                  </sc-if>
+                </div>
+                <h3 style="font:600 19px/1.14 'Newsreader',serif;color:#2b2420;margin:0;flex:1;">{{ r.title }}</h3>
+                <div style="display:flex;gap:7px;margin-top:4px;">
+                  <button onClick="{{ r.onCook }}" style="background:#2b2420;color:#f7f1e8;border:none;border-radius:9px;padding:9px 13px;font:600 13px 'DM Sans';cursor:pointer;flex:1;">View &amp; cook</button>
+                  <button onClick="{{ r.onAdd }}" style="{{ r.addStyle }}">{{ r.addLabel }}</button>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ ADD RECIPE ============ -->
+    <sc-if value="{{ isAdd }}" hint-placeholder-val="{{ false }}">
+      <section style="max-width:760px;">
+        <div style="margin-bottom:8px;">
+          <h1 style="font:600 36px/1.04 'Newsreader',serif;color:#2b2420;margin:0;letter-spacing:-0.01em;">Add a recipe</h1>
+          <p style="font:400 16px/1.5 'DM Sans';color:#6b5f54;margin:8px 0 0;">Paste a recipe's link and its text below. Mise reads it, structures the ingredients by aisle and the steps, then drops it into your randomizer pool.</p>
+        </div>
+
+        <div style="background:#fbf2e6;border:1px solid #ecdcc4;border-radius:12px;padding:13px 16px;font:400 13px/1.5 'DM Sans';color:#8a6d49;margin:18px 0 22px;">
+          {{ aiBadge }}
+        </div>
+
+        <div style="background:#fffefb;border:1px solid #e7dccc;border-radius:16px;padding:22px;">
+          <label style="display:block;font:600 12px 'DM Sans';color:#9c8d7d;letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px;">Recipe link (optional)</label>
+          <input value="{{ addUrl }}" onChange="{{ onUrlChange }}" placeholder="https://…" style="width:100%;background:#fffdf8;border:1px solid #e7dccc;border-radius:10px;padding:12px 14px;font:400 15px 'DM Sans';color:#2b2420;margin-bottom:18px;" />
+
+          <label style="display:block;font:600 12px 'DM Sans';color:#9c8d7d;letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px;">Paste the recipe (ingredients &amp; steps)</label>
+          <textarea value="{{ addText }}" onChange="{{ onTextChange }}" rows="9" placeholder="Copy the recipe text from the page and paste it here…" style="width:100%;background:#fffdf8;border:1px solid #e7dccc;border-radius:10px;padding:13px 14px;font:400 14px/1.5 'DM Sans';color:#2b2420;"></textarea>
+
+          <div style="display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap;">
+            <button onClick="{{ onParse }}" style="{{ parseBtnStyle }}">{{ parseBtnLabel }}</button>
+            <sc-if value="{{ parsing }}" hint-placeholder-val="{{ false }}">
+              <span style="width:18px;height:18px;border:2px solid #e7dccc;border-top-color:#c0562f;border-radius:50%;display:inline-block;animation:spin 0.7s linear infinite;"></span>
+            </sc-if>
+            <span style="font:500 13px 'DM Sans';color:#c0562f;">{{ parseError }}</span>
+          </div>
+        </div>
+
+        <!-- parsed preview -->
+        <sc-if value="{{ hasParsed }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fffefb;border:1px solid #c9b89f;border-radius:16px;padding:22px;margin-top:20px;">
+            <div style="font:600 12px 'DM Sans';color:#6f7a45;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px;">Review &amp; tidy  ·  then add to pool</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+              <div style="grid-column:1 / -1;">
+                <label style="display:block;font:600 11px 'DM Sans';color:#9c8d7d;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Title</label>
+                <input value="{{ pTitle }}" onChange="{{ onPTitle }}" style="width:100%;background:#fffdf8;border:1px solid #e7dccc;border-radius:9px;padding:10px 12px;font:400 15px 'DM Sans';color:#2b2420;" />
+              </div>
+              <div style="grid-column:1 / -1;">
+                <label style="display:block;font:600 11px 'DM Sans';color:#9c8d7d;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Image URL <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b3a795;">— optional; left blank, we match a photo automatically</span></label>
+                <input value="{{ pImage }}" onChange="{{ onPImage }}" placeholder="https://…/photo.jpg" style="width:100%;background:#fffdf8;border:1px solid #e7dccc;border-radius:9px;padding:10px 12px;font:400 15px 'DM Sans';color:#2b2420;" />
+              </div>
+              <div>
+                <label style="display:block;font:600 11px 'DM Sans';color:#9c8d7d;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Cuisine</label>
+                <input value="{{ pCuisine }}" onChange="{{ onPCuisine }}" style="width:100%;background:#fffdf8;border:1px solid #e7dccc;border-radius:9px;padding:10px 12px;font:400 15px 'DM Sans';color:#2b2420;" />
+              </div>
+              <div style="display:flex;gap:12px;">
+                <div style="flex:1;">
+                  <label style="display:block;font:600 11px 'DM Sans';color:#9c8d7d;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Minutes</label>
+                  <input value="{{ pTime }}" onChange="{{ onPTime }}" style="width:100%;background:#fffdf8;border:1px solid #e7dccc;border-radius:9px;padding:10px 12px;font:400 15px 'DM Sans';color:#2b2420;" />
+                </div>
+                <div style="flex:1;">
+                  <label style="display:block;font:600 11px 'DM Sans';color:#9c8d7d;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Servings</label>
+                  <input value="{{ pServings }}" onChange="{{ onPServings }}" style="width:100%;background:#fffdf8;border:1px solid #e7dccc;border-radius:9px;padding:10px 12px;font:400 15px 'DM Sans';color:#2b2420;" />
+                </div>
+              </div>
+            </div>
+            <label style="display:block;font:600 11px 'DM Sans';color:#9c8d7d;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Ingredients <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b3a795;">— one per line: amount, item, aisle</span></label>
+            <textarea value="{{ pIngredients }}" onChange="{{ onPIngredients }}" rows="6" style="width:100%;background:#fffdf8;border:1px solid #e7dccc;border-radius:9px;padding:11px 13px;font:400 14px/1.5 ui-monospace,monospace;color:#2b2420;margin-bottom:14px;"></textarea>
+            <label style="display:block;font:600 11px 'DM Sans';color:#9c8d7d;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Steps <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#b3a795;">— one per line</span></label>
+            <textarea value="{{ pSteps }}" onChange="{{ onPSteps }}" rows="6" style="width:100%;background:#fffdf8;border:1px solid #e7dccc;border-radius:9px;padding:11px 13px;font:400 14px/1.5 'DM Sans';color:#2b2420;margin-bottom:16px;"></textarea>
+            <button onClick="{{ onSave }}" style="background:#6f7a45;color:#fff;border:none;border-radius:11px;padding:13px 22px;font:600 15px 'DM Sans';cursor:pointer;box-shadow:0 3px 0 #586237;">Add to my library  ✓</button>
+          </div>
+        </sc-if>
+
+        <div style="margin-top:30px;">
+          <h3 style="font:600 13px 'DM Sans';color:#9c8d7d;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px;">Your added recipes  ·  {{ customCount }}</h3>
+          <sc-if value="{{ hasCustom }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:9px;">
+              <sc-for list="{{ customList }}" as="c" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;gap:14px;background:#fffefb;border:1px solid #e7dccc;border-radius:11px;padding:13px 16px;">
+                  <div style="flex:1;">
+                    <div style="font:600 16px 'Newsreader',serif;color:#2b2420;">{{ c.title }}</div>
+                    <div style="font:500 12px 'DM Sans';color:#a89a89;margin-top:2px;">{{ c.meta }}</div>
+                  </div>
+                  <button onClick="{{ c.onDelete }}" style="background:transparent;border:1px solid #e3c4bb;color:#b3603f;border-radius:8px;padding:7px 12px;font:600 13px 'DM Sans';cursor:pointer;">Remove</button>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ noCustom }}" hint-placeholder-val="{{ true }}">
+            <p style="font:400 14px 'DM Sans';color:#b3a795;margin:0;">Nothing yet — parsed recipes you keep will show up here and join the shuffle.</p>
+          </sc-if>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ COMBINE ============ -->
+    <sc-if value="{{ isCombine }}" hint-placeholder-val="{{ false }}">
+      <section>
+        <div style="margin-bottom:22px;">
+          <h1 style="font:600 36px/1.04 'Newsreader',serif;color:#2b2420;margin:0;letter-spacing:-0.01em;">Combine recipes</h1>
+          <p style="font:400 16px 'DM Sans';color:#6b5f54;margin:8px 0 0;max-width:560px;">Pick two dishes to merge into one meal — ingredients are combined and steps from both recipes are kept.</p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;">
+          <!-- Slot A -->
+          <div style="background:#fffefb;border:1px solid #e7dccc;border-radius:15px;overflow:hidden;box-shadow:0 1px 2px rgba(43,36,32,0.04);">
+            <div style="padding:13px 16px;background:#f1e7d6;border-bottom:1px solid #e7dccc;">
+              <span style="font:600 12px 'DM Sans';color:#2b2420;letter-spacing:.08em;text-transform:uppercase;">Recipe A</span>
+            </div>
+            <div style="padding:14px 16px;">
+              <sc-if value="{{ combineASelected }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:12px;background:#fbeee6;border:1px solid #e3b9a3;border-radius:11px;padding:13px 15px;">
+                  <div style="flex:1;">
+                    <div style="font:600 17px 'Newsreader',serif;color:#2b2420;">{{ combineATitle }}</div>
+                    <div style="font:500 12px 'DM Sans';color:#a89a89;margin-top:3px;">{{ combineAMeta }}</div>
+                  </div>
+                  <button onClick="{{ onClearA }}" style="background:transparent;border:1px solid #ddb8a4;color:#c0562f;border-radius:8px;padding:6px 12px;font:600 13px 'DM Sans';cursor:pointer;">✕</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ combineAEmpty }}" hint-placeholder-val="{{ true }}">
+                <input value="{{ combineSearchA }}" onChange="{{ onCombineSearchA }}" placeholder="Search recipes…" style="width:100%;background:#fffdf8;border:1px solid #e7dccc;border-radius:9px;padding:10px 13px;font:400 14px 'DM Sans';color:#2b2420;margin-bottom:10px;" />
+                <div style="max-height:340px;overflow-y:auto;">
+                  <sc-for list="{{ combineListA }}" as="ra" hint-placeholder-count="4">
+                    <button onClick="{{ ra.onPick }}" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:none;border-bottom:1px solid #f1e8da;padding:11px 4px;cursor:pointer;">
+                      <div style="flex:1;">
+                        <div style="font:600 15px/1.2 'Newsreader',serif;color:#2b2420;">{{ ra.title }}</div>
+                        <div style="font:500 11px 'DM Sans';color:#a89a89;margin-top:2px;">{{ ra.meta }}</div>
+                      </div>
+                    </button>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+
+          <!-- Slot B -->
+          <div style="background:#fffefb;border:1px solid #e7dccc;border-radius:15px;overflow:hidden;box-shadow:0 1px 2px rgba(43,36,32,0.04);">
+            <div style="padding:13px 16px;background:#f1e7d6;border-bottom:1px solid #e7dccc;">
+              <span style="font:600 12px 'DM Sans';color:#2b2420;letter-spacing:.08em;text-transform:uppercase;">Recipe B</span>
+            </div>
+            <div style="padding:14px 16px;">
+              <sc-if value="{{ combineBSelected }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:12px;background:#fbeee6;border:1px solid #e3b9a3;border-radius:11px;padding:13px 15px;">
+                  <div style="flex:1;">
+                    <div style="font:600 17px 'Newsreader',serif;color:#2b2420;">{{ combineBTitle }}</div>
+                    <div style="font:500 12px 'DM Sans';color:#a89a89;margin-top:3px;">{{ combineBMeta }}</div>
+                  </div>
+                  <button onClick="{{ onClearB }}" style="background:transparent;border:1px solid #ddb8a4;color:#c0562f;border-radius:8px;padding:6px 12px;font:600 13px 'DM Sans';cursor:pointer;">✕</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ combineBEmpty }}" hint-placeholder-val="{{ true }}">
+                <input value="{{ combineSearchB }}" onChange="{{ onCombineSearchB }}" placeholder="Search recipes…" style="width:100%;background:#fffdf8;border:1px solid #e7dccc;border-radius:9px;padding:10px 13px;font:400 14px 'DM Sans';color:#2b2420;margin-bottom:10px;" />
+                <div style="max-height:340px;overflow-y:auto;">
+                  <sc-for list="{{ combineListB }}" as="rb" hint-placeholder-count="4">
+                    <button onClick="{{ rb.onPick }}" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:none;border-bottom:1px solid #f1e8da;padding:11px 4px;cursor:pointer;">
+                      <div style="flex:1;">
+                        <div style="font:600 15px/1.2 'Newsreader',serif;color:#2b2420;">{{ rb.title }}</div>
+                        <div style="font:500 11px 'DM Sans';color:#a89a89;margin-top:2px;">{{ rb.meta }}</div>
+                      </div>
+                    </button>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+
+        <!-- Combined Preview -->
+        <sc-if value="{{ hasCombined }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fffefb;border:1px solid #c9b89f;border-radius:16px;padding:24px;margin-top:22px;box-shadow:0 2px 6px rgba(43,36,32,0.05);">
+            <div style="font:600 12px 'DM Sans';color:#6f7a45;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px;">Combined recipe preview</div>
+            <h2 style="font:600 26px/1.1 'Newsreader',serif;color:#2b2420;margin:0 0 8px;">{{ combinedTitle }}</h2>
+            <div style="display:flex;gap:14px;flex-wrap:wrap;font:500 13px 'DM Sans';color:#6b5f54;margin-bottom:20px;">
+              <span>{{ combinedCuisine }}</span>
+              <span style="color:#cdbfa9;">·</span>
+              <span>{{ combinedTime }}</span>
+              <span style="color:#cdbfa9;">·</span>
+              <span>{{ combinedServings }}</span>
+            </div>
+
+            <div style="margin-bottom:20px;">
+              <h3 style="font:600 13px 'DM Sans';color:#9c8d7d;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px;">Merged ingredients</h3>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:5px 18px;">
+                <sc-for list="{{ combinedIngredients }}" as="ci" hint-placeholder-count="6">
+                  <div style="font:400 14px 'DM Sans';color:#3a322c;border-bottom:1px solid #f1e8da;padding:5px 0;">{{ ci }}</div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:22px;">
+              <div>
+                <h3 style="font:600 13px 'DM Sans';color:#c0562f;letter-spacing:.06em;text-transform:uppercase;margin:0 0 10px;">{{ combinedStepsALabel }}</h3>
+                <sc-for list="{{ combinedStepsA }}" as="sa" hint-placeholder-count="3">
+                  <p style="font:400 14px/1.5 'DM Sans';color:#3a322c;margin:0 0 6px;">{{ sa }}</p>
+                </sc-for>
+              </div>
+              <div>
+                <h3 style="font:600 13px 'DM Sans';color:#c0562f;letter-spacing:.06em;text-transform:uppercase;margin:0 0 10px;">{{ combinedStepsBLabel }}</h3>
+                <sc-for list="{{ combinedStepsB }}" as="sb" hint-placeholder-count="3">
+                  <p style="font:400 14px/1.5 'DM Sans';color:#3a322c;margin:0 0 6px;">{{ sb }}</p>
+                </sc-for>
+              </div>
+            </div>
+
+            <button onClick="{{ onSaveCombined }}" style="background:#6f7a45;color:#fff;border:none;border-radius:11px;padding:14px 24px;font:600 15px 'DM Sans';cursor:pointer;box-shadow:0 3px 0 #586237;">Save combined recipe  ✓</button>
+          </div>
+        </sc-if>
+      </section>
+    </sc-if>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;targetMeals&quot;: { &quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 14, &quot;min&quot;: 8, &quot;max&quot;: 21, &quot;step&quot;: 1, &quot;unit&quot;: &quot; meals&quot;, &quot;section&quot;: &quot;Generator&quot;, &quot;tsType&quot;: &quot;number&quot; },
+  &quot;varietyMode&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;variety&quot;, &quot;options&quot;: [&quot;variety&quot;, &quot;random&quot;], &quot;section&quot;: &quot;Generator&quot;, &quot;tsType&quot;: &quot;string&quot; },
+  &quot;prefMode&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;balanced&quot;, &quot;options&quot;: [&quot;comfort&quot;, &quot;balanced&quot;, &quot;discovery&quot;], &quot;section&quot;: &quot;Generator&quot;, &quot;tsType&quot;: &quot;string&quot; }
+}">
+class Component extends DCLogic {
+  state = {
+    screen: 'generate',
+    loaded: false,
+    custom: [],
+    week: [],
+    locked: [],
+    checked: {},
+    favorites: [],
+    cooked: {},
+    blocked: [],
+    prefMode: 'balanced',
+    targetMeals: 14,
+    cook: { id: null, step: 0 },
+    query: '',
+    filterCuisine: 'All',
+    addUrl: '',
+    addText: '',
+    parsing: false,
+    parseError: '',
+    aiNote: '',
+    hasParsed: false,
+    p: { title: '', cuisine: '', time: '25', servings: '4', ingredients: '', steps: '', image: '' },
+    combineA: null, combineB: null, combineSearchA: '', combineSearchB: '',
+  };
+
+  async componentDidMount() {
+    try {
+      const mod = await import('./recipes.js');
+      this._RECIPES = mod.RECIPES;
+      this._AISLES = mod.AISLES;
+    } catch (e) {
+      this._RECIPES = []; this._AISLES = ['Produce','Meat & Seafood','Dairy & Eggs','Bakery','Pantry','Spices','Frozen','Other'];
+    }
+    const custom = this.loadJSON('mpg_custom') || [];
+    const checked = this.loadJSON('mpg_checked') || {};
+    const tgt = this.loadJSON('mpg_target');
+    const favorites = this.loadJSON('mpg_favorites') || [];
+    const cooked = this.loadJSON('mpg_cooked') || {};
+    const blocked = this.loadJSON('mpg_blocked') || [];
+    const prefMode = this.loadJSON('mpg_prefmode') || this.props.prefMode || 'balanced';
+    this.setState({ loaded: true, custom, checked, favorites, cooked, blocked, prefMode, targetMeals: tgt || (this.props.targetMeals || 14) }, () => {
+      const saved = this.loadJSON('mpg_week');
+      let week = Array.isArray(saved) && saved.length
+        ? saved.filter(id => this.allRecipes().some(r => r.id === id))
+        : null;
+      if (!week || !week.length) week = this.buildWeek([]);
+      this.setState({ week });
+    });
+  }
+
+  // ---------- data helpers ----------
+  allRecipes() { return [...(this._RECIPES || []), ...(this.state.custom || [])]; }
+  byId(id) { return this.allRecipes().find(r => r.id === id); }
+  weekObjs() { return this.state.week.map(id => this.byId(id)).filter(Boolean); }
+  // recipes eligible for the randomizer (everything except the ones you blocked)
+  genPool() { return this.allRecipes().filter(r => !this.state.blocked.includes(r.id)); }
+
+  // ---------- photos ----------
+  recipeImage(r) { return (r && r.image) || ''; }
+  imgErr(e) { if (e && e.target) e.target.style.display = 'none'; }
+  imgErr(e) { if (e && e.target) e.target.style.display = 'none'; }
+
+  toggleBlock(id) {
+    const isBlocked = this.state.blocked.includes(id);
+    const blocked = isBlocked ? this.state.blocked.filter(x => x !== id) : [...this.state.blocked, id];
+    const favorites = this.state.favorites.filter(x => x !== id);
+    this.setState({ blocked, favorites });
+    this.saveJSON('mpg_blocked', blocked);
+    this.saveJSON('mpg_favorites', favorites);
+    // if a now-blocked recipe is in the current week, swap it out for an eligible one
+    if (!isBlocked && this.state.week.includes(id)) {
+      setTimeout(() => this.rerollOne(id), 0);
+    }
+  }
+
+  loadJSON(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
+  saveJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+  shuffle(a) { const x = a.slice(); for (let i = x.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [x[i], x[j]] = [x[j], x[i]]; } return x; }
+
+  parseNum(s) { s = ('' + s).trim(); if (!s) return null; if (s.includes('/')) { const [a, b] = s.split('/'); const n = (+a) / (+b); return isNaN(n) ? null : n; } const n = parseFloat(s); return isNaN(n) ? null : n; }
+
+  formatQty(q) {
+    if (q == null || q === '') return '';
+    const map = { '0.25': '¼', '0.33': '⅓', '0.5': '½', '0.67': '⅔', '0.66': '⅔', '0.75': '¾' };
+    const whole = Math.floor(q); const frac = (Math.round((q - whole) * 100) / 100).toFixed(2);
+    const f = map[parseFloat(frac).toString()] || map[frac];
+    if (f) return (whole ? whole : '') + f;
+    return (Math.round(q * 100) / 100).toString();
+  }
+
+  ingLabel(g) {
+    const amt = `${this.formatQty(g.qty)} ${g.unit || ''}`.replace(/\s+/g, ' ').trim();
+    return amt ? `${amt} ${g.item}` : g.item;
+  }
+
+  // ---------- preference model ----------
+  isFav(id) { return this.state.favorites.includes(id); }
+  cookedCount(id) { return this.state.cooked[id] || 0; }
+  isPreferred(r) { return this.isFav(r.id) || this.cookedCount(r.id) > 0; }
+  // how strongly the user leans toward a cuisine, from favorites (full) + cooked history (soft)
+  cuisineAffinity(cuisine) {
+    const all = this.allRecipes();
+    const favPart = this.state.favorites.reduce((n, id) => {
+      const r = all.find(x => x.id === id); return n + (r && r.cuisine === cuisine ? 1 : 0);
+    }, 0);
+    const cookPart = Object.keys(this.state.cooked).reduce((n, id) => {
+      const r = all.find(x => x.id === id);
+      return n + (r && r.cuisine === cuisine ? Math.min(this.state.cooked[id], 2) * 0.5 : 0);
+    }, 0);
+    return favPart + cookPart;
+  }
+  prefConfig() {
+    const m = this.state.prefMode;
+    if (m === 'comfort')   return { favBoost: 9,   affWeight: 0.7, exploreBonus: 1.0, minFresh: 1 };
+    if (m === 'discovery') return { favBoost: 2.5, affWeight: 0.3, exploreBonus: 3.2, minFresh: 2 };
+    return { favBoost: 5, affWeight: 0.5, exploreBonus: 1.7, minFresh: 1 }; // balanced
+  }
+  // the core scoring function: bigger weight = more likely to be drawn
+  recipeWeight(r, cfg) {
+    let w = 1;
+    if (this.isFav(r.id)) w *= cfg.favBoost;                                   // you loved it
+    w *= 1 + cfg.affWeight * Math.min(this.cuisineAffinity(r.cuisine), 3);     // similar to favorites
+    w *= 1 + 0.2 * Math.min(this.cookedCount(r.id), 4);                        // you cook it often
+    if (!this.isPreferred(r)) w *= cfg.exploreBonus;                           // novelty so weeks stay fresh
+    return w;
+  }
+  weightedDraw(pool, weights) {
+    const total = weights.reduce((a, b) => a + b, 0);
+    if (total <= 0) return pool[Math.floor(Math.random() * pool.length)];
+    let r = Math.random() * total;
+    for (let i = 0; i < pool.length; i++) { r -= weights[i]; if (r <= 0) return pool[i]; }
+    return pool[pool.length - 1];
+  }
+
+  // ---------- generator ----------
+  buildWeek(lockedIds) {
+    const all = this.genPool();
+    if (!all.length) return [];
+    const target = this.state.targetMeals || 14;
+    const variety = (this.props.varietyMode || 'variety') !== 'random';
+    const cfg = this.prefConfig();
+    let chosen = all.filter(r => lockedIds.includes(r.id));
+    const has = r => chosen.some(c => c.id === r.id);
+    const servings = () => chosen.reduce((s, r) => s + (r.servings || 4), 0);
+    const usedCuis = () => new Set(chosen.map(r => r.cuisine));
+    const full = () => chosen.length >= 5 || (servings() >= target && chosen.length >= 3);
+
+    const pickOne = (restrictFresh) => {
+      let cands = all.filter(r => !has(r));
+      if (restrictFresh) { const f = cands.filter(r => !this.isPreferred(r)); if (f.length) cands = f; }
+      if (variety) { const d = cands.filter(r => !usedCuis().has(r.cuisine)); if (d.length) cands = d; }
+      if (!cands.length) return null;
+      if (!variety) return cands[Math.floor(Math.random() * cands.length)]; // pure-random mode
+      return this.weightedDraw(cands, cands.map(r => this.recipeWeight(r, cfg)));
+    };
+
+    // weighted fill — favorites & favored cuisines come up more often
+    while (!full()) { const pick = pickOne(false); if (!pick) break; chosen.push(pick); }
+
+    // guarantee novelty: at least minFresh of the (non-locked) picks are recipes you haven't favorited/cooked
+    if (variety) {
+      const lockedSet = new Set(lockedIds);
+      const freshCount = () => chosen.filter(r => !lockedSet.has(r.id) && !this.isPreferred(r)).length;
+      let guard = 0;
+      while (freshCount() < cfg.minFresh && guard++ < 6) {
+        const swap = chosen
+          .filter(r => !lockedSet.has(r.id) && this.isPreferred(r))
+          .sort((a, b) => this.recipeWeight(b, cfg) - this.recipeWeight(a, cfg))[0];
+        if (!swap) break;
+        chosen = chosen.filter(r => r.id !== swap.id);
+        const fresh = pickOne(true);
+        if (!fresh) { chosen.push(swap); break; }
+        chosen.push(fresh);
+      }
+    }
+
+    return chosen.map(r => r.id);
+  }
+
+  setWeek(ids) { this.setState({ week: ids }); this.saveJSON('mpg_week', ids); }
+
+  shuffleWeek() { this.setWeek(this.buildWeek(this.state.locked)); }
+
+  rerollOne(id) {
+    const all = this.genPool();
+    const cfg = this.prefConfig();
+    const week = this.state.week;
+    const variety = (this.props.varietyMode || 'variety') !== 'random';
+    const used = new Set(week.filter(x => x !== id).map(x => this.byId(x) && this.byId(x).cuisine));
+    let cands = all.filter(r => !week.includes(r.id));
+    if (variety) { const d = cands.filter(r => !used.has(r.cuisine)); if (d.length) cands = d; }
+    if (!cands.length) return;
+    const pick = variety
+      ? this.weightedDraw(cands, cands.map(r => this.recipeWeight(r, cfg)))
+      : cands[Math.floor(Math.random() * cands.length)];
+    this.setWeek(week.map(x => x === id ? pick.id : x));
+  }
+
+  toggleLock(id) {
+    const locked = this.state.locked.includes(id)
+      ? this.state.locked.filter(x => x !== id)
+      : [...this.state.locked, id];
+    this.setState({ locked });
+  }
+
+  setTarget(n) { this.setState({ targetMeals: n }, () => this.setWeek(this.buildWeek(this.state.locked))); this.saveJSON('mpg_target', n); }
+
+  toggleFavorite(id) {
+    const favorites = this.isFav(id) ? this.state.favorites.filter(x => x !== id) : [...this.state.favorites, id];
+    this.setState({ favorites });
+    this.saveJSON('mpg_favorites', favorites);
+  }
+  setPrefMode(m) {
+    this.setState({ prefMode: m }, () => this.setWeek(this.buildWeek(this.state.locked)));
+    this.saveJSON('mpg_prefmode', m);
+  }
+  markCooked(id) {
+    const cooked = { ...this.state.cooked, [id]: (this.state.cooked[id] || 0) + 1 };
+    this.setState({ cooked });
+    this.saveJSON('mpg_cooked', cooked);
+  }
+
+  // ---------- shopping ----------
+  buildShopping() {
+    const recs = this.weekObjs();
+    const map = {};
+    recs.forEach(r => (r.ingredients || []).forEach(g => {
+      const key = `${g.aisle}||${g.item.toLowerCase()}||${g.unit || ''}`;
+      if (!map[key]) map[key] = { item: g.item, unit: g.unit || '', aisle: g.aisle, qty: 0, hasQty: false, key };
+      if (g.qty != null) { map[key].qty += g.qty; map[key].hasQty = true; }
+    }));
+    const order = this._AISLES || [];
+    const groups = order.map(aisle => {
+      const items = Object.values(map).filter(m => m.aisle === aisle).sort((a, b) => a.item.localeCompare(b.item));
+      return { aisle, items };
+    }).filter(g => g.items.length);
+    return groups;
+  }
+
+  toggleCheck(key) {
+    const checked = { ...this.state.checked, [key]: !this.state.checked[key] };
+    this.setState({ checked });
+    this.saveJSON('mpg_checked', checked);
+  }
+
+  uncheckAll() { this.setState({ checked: {} }); this.saveJSON('mpg_checked', {}); }
+
+  // ---------- cook ----------
+  openCook(id) { this.setState({ screen: 'cook', cook: { id, step: 0 } }); }
+  cookStep(d) {
+    const r = this.byId(this.state.cook.id); if (!r) return;
+    const n = Math.max(0, Math.min(r.steps.length - 1, this.state.cook.step + d));
+    this.setState({ cook: { ...this.state.cook, step: n } });
+  }
+  cookGoto(i) { this.setState({ cook: { ...this.state.cook, step: i } }); }
+
+  // ---------- add recipe / AI parse ----------
+  setP(field, val) { this.setState({ p: { ...this.state.p, [field]: val } }); }
+
+  extractJson(raw) {
+    const a = raw.indexOf('{'); const b = raw.lastIndexOf('}');
+    if (a < 0 || b < 0) throw new Error('no json');
+    return JSON.parse(raw.slice(a, b + 1));
+  }
+
+  fillParsed(json, note) {
+    const aisles = this._AISLES || [];
+    const ingredients = (json.ingredients || []).map(g => {
+      const amt = `${this.formatQty(g.qty)} ${g.unit || ''}`.replace(/\s+/g, ' ').trim();
+      const aisle = aisles.includes(g.aisle) ? g.aisle : 'Other';
+      return amt ? `${amt}, ${g.item}, ${aisle}` : `${g.item}, ${aisle}`;
+    }).join('\n');
+    const steps = (json.steps || []).map(s => typeof s === 'string' ? s : (s.text || '')).join('\n');
+    this.setState({
+      hasParsed: true,
+      parseError: note || '',
+      p: {
+        title: json.title || this.state.p.title || '',
+        cuisine: json.cuisine || '',
+        time: '' + (json.time || 25),
+        servings: '' + (json.servings || 4),
+        image: json.image || '',
+        ingredients, steps,
+      },
+    });
+  }
+
+  heuristicParse(text, noAi) {
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+    const idx = lines.findIndex(l => /instructions|directions|method|^steps/i.test(l));
+    let ing = [], st = [];
+    if (idx >= 0) { ing = lines.slice(0, idx).filter(l => !/ingredients/i.test(l)); st = lines.slice(idx + 1); }
+    else { st = lines; }
+    this.fillParsed({
+      title: lines[0] || 'New recipe', cuisine: '', time: 25, servings: 4,
+      ingredients: ing.map(l => ({ item: l, qty: null, unit: '', aisle: 'Other' })),
+      steps: st,
+    }, noAi ? 'AI parsing is unavailable here — rough split below, please tidy it.' : 'Could not auto-structure cleanly — please review below.');
+  }
+
+  async doParse() {
+    const text = this.state.addText.trim();
+    if (!text) { this.setState({ parseError: 'Paste the recipe text first.' }); return; }
+    this.setState({ parsing: true, parseError: '' });
+    try {
+      if (!(window.claude && window.claude.complete)) throw Object.assign(new Error('no-ai'), { noAi: true });
+      const prompt = `Extract a structured recipe from the text. Respond with ONLY minified JSON, no markdown, matching this schema:\n{"title":string,"cuisine":string,"time":number_minutes,"servings":number,"image":string_url_or_null,"ingredients":[{"item":string,"qty":number_or_null,"unit":string,"aisle":one of ["Produce","Meat & Seafood","Dairy & Eggs","Bakery","Pantry","Spices","Frozen","Other"]}],"steps":[string]}\nChoose the best aisle per ingredient. Unknown quantity -> qty null, unit "". Keep steps concise. If a photo/image URL appears in the text, put it in "image", else null.\nTEXT:\n${text}`;
+      const raw = await window.claude.complete(prompt);
+      this.fillParsed(this.extractJson(raw), '');
+    } catch (e) {
+      this.heuristicParse(text, !!e.noAi);
+    } finally {
+      this.setState({ parsing: false });
+    }
+  }
+
+  parseIngLine(line) {
+    const aisles = this._AISLES || [];
+    const parts = line.split(',').map(s => s.trim()).filter(s => s.length);
+    let qty = null, unit = '', item = line, aisle = 'Other';
+    if (parts.length >= 3) {
+      const amt = parts[0]; item = parts[1]; aisle = parts[2];
+      const m = amt.match(/^([\d./]+)\s*(.*)$/);
+      if (m) { qty = this.parseNum(m[1]); unit = m[2] || ''; } else { unit = amt; }
+    } else if (parts.length === 2) {
+      if (aisles.includes(parts[1])) { item = parts[0]; aisle = parts[1]; }
+      else { item = parts.join(', '); }
+    } else if (parts.length === 1) { item = parts[0]; }
+    if (!aisles.includes(aisle)) aisle = 'Other';
+    return { item, qty, unit, aisle };
+  }
+
+  saveParsed() {
+    const p = this.state.p;
+    const ingredients = (p.ingredients || '').split('\n').map(l => l.trim()).filter(Boolean).map(l => this.parseIngLine(l));
+    const steps = (p.steps || '').split('\n').map(l => l.trim()).filter(Boolean).map(t => ({ text: t }));
+    if (!p.title.trim() || !steps.length) { this.setState({ parseError: 'Need at least a title and one step.' }); return; }
+    const rec = {
+      id: 'c' + Date.now(),
+      title: p.title.trim(),
+      cuisine: (p.cuisine || 'Custom').trim(),
+      meals: ['lunch', 'dinner'],
+      time: parseInt(p.time) || 25,
+      servings: parseInt(p.servings) || 4,
+      tags: ['custom', 'batch'],
+      description: steps[0].text,
+      image: (p.image || '').trim() || undefined,
+      ingredients, steps,
+      custom: true,
+      source: this.state.addUrl || '',
+    };
+    const custom = [...this.state.custom, rec];
+    this.setState({ custom, hasParsed: false, addUrl: '', addText: '', parseError: '', p: { title: '', cuisine: '', time: '25', servings: '4', ingredients: '', steps: '', image: '' } });
+    this.saveJSON('mpg_custom', custom);
+  }
+
+  deleteCustom(id) {
+    const custom = this.state.custom.filter(r => r.id !== id);
+    this.setState({ custom });
+    this.saveJSON('mpg_custom', custom);
+    if (this.state.week.includes(id)) this.setWeek(this.state.week.filter(x => x !== id));
+  }
+
+  addToWeek(id) {
+    if (this.state.week.includes(id)) return;
+    if (this.state.week.length >= 6) { this.setState({ screen: 'generate' }); return; }
+    this.setWeek([...this.state.week, id]);
+    this.setState({ screen: 'generate' });
+  }
+
+  saveCombined() {
+    const a = this.byId(this.state.combineA);
+    const b = this.byId(this.state.combineB);
+    if (!a || !b) return;
+    const ingMap = {};
+    [a, b].forEach(rec => (rec.ingredients || []).forEach(g => {
+      const k = `${g.item.toLowerCase()}||${(g.unit||'').toLowerCase()}||${g.aisle}`;
+      if (ingMap[k]) { if (g.qty != null && ingMap[k].qty != null) ingMap[k].qty += g.qty; }
+      else ingMap[k] = { ...g };
+    }));
+    const steps = [
+      ...a.steps.map(st => ({ text: `[${a.title}] ${st.text}` })),
+      ...b.steps.map(st => ({ text: `[${b.title}] ${st.text}` })),
+    ];
+    const rec = {
+      id: 'c' + Date.now(),
+      title: `${a.title} + ${b.title}`,
+      cuisine: a.cuisine === b.cuisine ? a.cuisine : 'Fusion',
+      meals: ['lunch', 'dinner'],
+      time: a.time + b.time,
+      servings: Math.max(a.servings, b.servings),
+      tags: ['custom', 'batch', 'combined'],
+      description: `A combination of ${a.title} and ${b.title}.`,
+      ingredients: Object.values(ingMap),
+      steps,
+      custom: true,
+    };
+    const custom = [...this.state.custom, rec];
+    this.setState({ custom, combineA: null, combineB: null, combineSearchA: '', combineSearchB: '', screen: 'library' });
+    this.saveJSON('mpg_custom', custom);
+  }
+
+  // ---------- styles ----------
+  navStyle(active) {
+    return active
+      ? "background:#2b2420;color:#f7f1e8;border:none;border-radius:9px;padding:9px 15px;font:600 14px 'DM Sans';cursor:pointer;"
+      : "background:transparent;color:#6b5f54;border:none;border-radius:9px;padding:9px 15px;font:600 14px 'DM Sans';cursor:pointer;";
+  }
+  chipStyle(active) {
+    return active
+      ? "background:#c0562f;color:#fff;border:1px solid #c0562f;border-radius:20px;padding:8px 15px;font:600 13px 'DM Sans';cursor:pointer;"
+      : "background:#fffdf8;color:#6b5f54;border:1px solid #e0d3bf;border-radius:20px;padding:8px 15px;font:600 13px 'DM Sans';cursor:pointer;";
+  }
+
+  renderVals() {
+    const s = this.state;
+    const PH = "position:relative;height:150px;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(45deg,#efe4d2,#efe4d2 11px,#e7dac4 11px,#e7dac4 22px);border-bottom:1px solid #e7dccc;";
+    const PH_SM = "position:relative;height:118px;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(45deg,#efe4d2,#efe4d2 10px,#e7dac4 10px,#e7dac4 20px);border-bottom:1px solid #e7dccc;";
+
+    const nav = [
+      { key: 'generate', label: 'Generate' },
+      { key: 'shopping', label: 'Shopping list' },
+      { key: 'library', label: 'Library' },
+      { key: 'add', label: 'Add recipe' },
+      { key: 'combine', label: 'Combine' },
+    ];
+    const activeKey = s.screen === 'cook' ? 'generate' : s.screen;
+    const navItems = nav.map(n => ({
+      label: n.label,
+      style: this.navStyle(n.key === activeKey),
+      onClick: () => this.setState({ screen: n.key }),
+    }));
+
+    // ----- generate -----
+    const weekObjs = this.weekObjs();
+    const totalMeals = weekObjs.reduce((a, r) => a + (r.servings || 4), 0);
+    const cuisineCount = new Set(weekObjs.map(r => r.cuisine)).size;
+    const avgTime = weekObjs.length ? Math.round(weekObjs.reduce((a, r) => a + r.time, 0) / weekObjs.length) : 0;
+    const weekSummary = weekObjs.length
+      ? `${weekObjs.length} batch-cook recipes · about ${totalMeals} meals · ${cuisineCount} cuisines · ~${avgTime} min each. Lock the keepers, then shuffle the rest.`
+      : 'Building your week…';
+    const weekRecipes = weekObjs.map(r => {
+      const locked = s.locked.includes(r.id);
+      const fav = this.isFav(r.id);
+      const cooked = this.cookedCount(r.id);
+      const aff = this.cuisineAffinity(r.cuisine);
+      let reason, rColor, rBg;
+      if (fav) { reason = '♥ Favorite'; rColor = '#a4441f'; rBg = '#fbeee6'; }
+      else if (cooked > 0) { reason = 'You cook this'; rColor = '#9a7a1c'; rBg = '#f7eed6'; }
+      else if (aff >= 1) { reason = 'Like your favorites'; rColor = '#586237'; rBg = '#eef0e4'; }
+      else { reason = 'New for you'; rColor = '#7d7264'; rBg = '#f0e9dd'; }
+      return {
+        cuisine: r.cuisine,
+        title: r.title,
+        description: r.description,
+        metaText: `${r.time} min · makes ${r.servings} meals`,
+        reasonBadge: reason,
+        reasonStyle: `font:600 11px 'DM Sans';color:${rColor};background:${rBg};padding:3px 9px;border-radius:20px;letter-spacing:.02em;white-space:nowrap;`,
+        hasImg: !!this.recipeImage(r),
+        bgImgStyle: `position:absolute;inset:0;width:100%;height:100%;background:url('${this.recipeImage(r)}') center/cover no-repeat;`,
+        onBlock: () => this.toggleBlock(r.id),
+        blockStyle: "position:absolute;top:11px;right:11px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.85);border:1px solid #e7dccc;color:#a89a89;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;",
+        favIcon: fav ? '♥' : '♡',
+        onFav: () => this.toggleFavorite(r.id),
+        favStyle: "position:absolute;bottom:11px;right:11px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255," + (fav ? '0.95' : '0.85') + ");border:1px solid " + (fav ? '#e3b9a3' : '#e7dccc') + ";color:" + (fav ? '#c0562f' : '#a89a89') + ";font-size:17px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;",
+        tagsText: (r.tags || []).filter(t => t !== 'custom' && t !== 'batch').join('  ·  ') || 'batch-cook',
+        hasSource: !!(r.source),
+        sourceUrl: r.source || '',
+        phStyle: PH,
+        isLocked: locked,
+        lockLabel: locked ? 'Locked' : 'Lock',
+        lockStyle: locked
+          ? "background:#fbeee6;color:#a4441f;border:1px solid #e3b9a3;border-radius:10px;padding:11px 13px;font:600 13px 'DM Sans';cursor:pointer;"
+          : "background:#fffdf8;color:#9c8d7d;border:1px solid #e7dccc;border-radius:10px;padding:11px 13px;font:600 13px 'DM Sans';cursor:pointer;",
+        cardStyle: "background:#fffefb;border:" + (locked ? "2px solid #c0562f" : "1px solid #e7dccc") + ";border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(43,36,32,0.04);",
+        onCook: () => this.openCook(r.id),
+        onReroll: () => this.rerollOne(r.id),
+        onLock: () => this.toggleLock(r.id),
+      };
+    });
+    const targetChips = [10, 14, 18].map(n => ({
+      label: `${n} meals`,
+      style: this.chipStyle(n === s.targetMeals),
+      onClick: () => this.setTarget(n),
+    }));
+    const prefModes = [
+      { k: 'comfort', label: 'Mostly favorites' },
+      { k: 'balanced', label: 'Balanced' },
+      { k: 'discovery', label: 'Discover' },
+    ];
+    const prefChips = prefModes.map(m => ({
+      label: m.label,
+      style: this.chipStyle(m.k === s.prefMode),
+      onClick: () => this.setPrefMode(m.k),
+    }));
+    const prefHintMap = {
+      comfort: 'Leans hard on your favorites, plus one fresh pick.',
+      balanced: 'Favorites weighted, with room to explore.',
+      discovery: 'Mostly new recipes, lightly guided by your taste.',
+    };
+    const prefHint = s.favorites.length
+      ? prefHintMap[s.prefMode]
+      : 'Tip: tap the ♡ on recipes you love — weeks will lean toward them.';
+
+    // ----- shopping -----
+    const groups = this.buildShopping();
+    let total = 0, checkedCount = 0;
+    const aisleGroups = groups.map(g => {
+      const items = g.items.map(m => {
+        const checked = !!s.checked[m.key];
+        total++; if (checked) checkedCount++;
+        return {
+          label: this.ingLabel(m),
+          check: checked ? '✓' : '',
+          onToggle: () => this.toggleCheck(m.key),
+          boxStyle: checked
+            ? "width:21px;height:21px;flex:none;border-radius:6px;background:#6f7a45;border:1.5px solid #6f7a45;color:#fff;display:flex;align-items:center;justify-content:center;font:700 12px 'DM Sans';"
+            : "width:21px;height:21px;flex:none;border-radius:6px;background:#fff;border:1.5px solid #cdbfa9;color:transparent;display:flex;align-items:center;justify-content:center;font:700 12px 'DM Sans';",
+          textStyle: checked
+            ? "font:400 15px 'DM Sans';color:#b3a795;text-decoration:line-through;"
+            : "font:400 15px 'DM Sans';color:#2b2420;",
+        };
+      });
+      return { aisle: g.aisle, items, countText: `${g.items.length}` };
+    });
+    const pct = total ? Math.round((checkedCount / total) * 100) : 0;
+    const shopSummary = total
+      ? `${checkedCount} of ${total} items gathered  ·  ${aisleGroups.length} aisles`
+      : 'Generate a week to build your list.';
+    const shopBarStyle = `height:100%;width:${pct}%;background:#6f7a45;border-radius:20px;transition:width .3s;`;
+
+    // ----- cook -----
+    const cookRec = this.byId(s.cook.id);
+    let cookVals = { cookHasImg: false, cookBgImgStyle: '', cookTitle: '', cookMeta: '', cookServings: '', cookStepLabel: '', cookStepText: '', cookPhLabel: '', cookPhStyle: '', cookNextLabel: '', cookPrevStyle: '', cookDots: [], cookIngredients: [], onPrev: ()=>{}, onNext: ()=>{} };
+    if (cookRec) {
+      const idx = Math.min(s.cook.step, cookRec.steps.length - 1);
+      const st = cookRec.steps[idx];
+      cookVals = {
+        cookTitle: cookRec.title,
+        cookMeta: `${cookRec.cuisine}  ·  ${cookRec.time} min  ·  makes ${cookRec.servings} meals`,
+        cookHasSource: !!(cookRec.source),
+        cookSourceUrl: cookRec.source || '',
+        cookServings: `makes ${cookRec.servings} meals`,
+        cookStepLabel: `Step ${idx + 1} of ${cookRec.steps.length}`,
+        cookStepText: st.text,
+        cookHasImg: !!this.recipeImage(cookRec),
+        cookBgImgStyle: `position:absolute;inset:0;width:100%;height:100%;background:url('${this.recipeImage(cookRec)}') center/cover no-repeat;`,
+        cookPhLabel: `step ${idx + 1} photo`,
+        cookPhStyle: "position:relative;height:230px;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(45deg,#efe4d2,#efe4d2 13px,#e7dac4 13px,#e7dac4 26px);border-bottom:1px solid #e7dccc;",
+        cookNextLabel: idx >= cookRec.steps.length - 1 ? 'Done  ✓' : 'Next  →',
+        cookPrevStyle: idx === 0
+          ? "background:#fffdf8;color:#cdbfa9;border:1px solid #ece2d2;border-radius:11px;padding:13px 20px;font:600 15px 'DM Sans';cursor:default;"
+          : "background:#fffdf8;color:#6b5f54;border:1px solid #e7dccc;border-radius:11px;padding:13px 20px;font:600 15px 'DM Sans';cursor:pointer;",
+        cookDots: cookRec.steps.map((_, i) => ({
+          onClick: () => this.cookGoto(i),
+          style: i === idx
+            ? "width:26px;height:9px;border-radius:6px;background:#c0562f;border:none;cursor:pointer;padding:0;"
+            : "width:9px;height:9px;border-radius:6px;background:#dccdb8;border:none;cursor:pointer;padding:0;",
+        })),
+        cookIngredients: (cookRec.ingredients || []).map(g => this.ingLabel(g)),
+        onPrev: () => this.cookStep(-1),
+        onNext: () => { if (idx >= cookRec.steps.length - 1) { this.markCooked(cookRec.id); this.setState({ screen: 'generate' }); } else this.cookStep(1); },
+      };
+    }
+
+    // ----- library -----
+    const all = this.allRecipes();
+    const blocked = s.blocked;
+    const hiddenView = s.filterCuisine === 'Hidden';
+    const cuisines = ['All', ...Array.from(new Set(all.filter(r => !blocked.includes(r.id)).map(r => r.cuisine))).sort()];
+    if (blocked.length) cuisines.push('Hidden');
+    const cuisineChips = cuisines.map(c => ({
+      label: c === 'Hidden' ? `Hidden (${blocked.length})` : c,
+      style: this.chipStyle(c === s.filterCuisine),
+      onClick: () => this.setState({ filterCuisine: c }),
+    }));
+    const q = s.query.trim().toLowerCase();
+    const libFiltered = hiddenView
+      ? all.filter(r => blocked.includes(r.id))
+      : all.filter(r =>
+          !blocked.includes(r.id) &&
+          (s.filterCuisine === 'All' || r.cuisine === s.filterCuisine) &&
+          (!q || r.title.toLowerCase().includes(q) || r.cuisine.toLowerCase().includes(q))
+        );
+    const libRecipes = libFiltered.map(r => {
+      const inWeek = s.week.includes(r.id);
+      return {
+        cuisine: r.cuisine,
+        title: r.title,
+        metaText: `${r.time} min · ${r.servings} meals`,
+        hasSource: !!(r.source),
+        sourceUrl: r.source || '',
+        phStyle: PH_SM,
+        isCustom: !!r.custom,
+        hasImg: !!this.recipeImage(r),
+        bgImgStyle: `position:absolute;inset:0;width:100%;height:100%;background:url('${this.recipeImage(r)}') center/cover no-repeat;`,
+        favIcon: this.isFav(r.id) ? '♥' : '♡',
+        onFav: () => this.toggleFavorite(r.id),
+        favStyle: "position:absolute;bottom:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255," + (this.isFav(r.id) ? '0.95' : '0.85') + ");border:1px solid " + (this.isFav(r.id) ? '#e3b9a3' : '#e7dccc') + ";color:" + (this.isFav(r.id) ? '#c0562f' : '#a89a89') + ";font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;",
+        blockIcon: hiddenView ? '↩' : '✕',
+        blockTitle: hiddenView ? 'Restore to pool' : 'Never show again',
+        onBlock: () => this.toggleBlock(r.id),
+        blockStyle: "position:absolute;bottom:10px;left:10px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.85);border:1px solid " + (hiddenView ? '#cdd6b6' : '#e7dccc') + ";color:" + (hiddenView ? '#586237' : '#a89a89') + ";font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;",
+        onCook: () => this.openCook(r.id),
+        onAdd: () => this.addToWeek(r.id),
+        addLabel: inWeek ? 'Added' : '+ Week',
+        addStyle: inWeek
+          ? "background:#eef0e4;color:#6f7a45;border:1px solid #d4d9bf;border-radius:9px;padding:9px 12px;font:600 13px 'DM Sans';cursor:default;white-space:nowrap;"
+          : "background:#fffdf8;color:#6b5f54;border:1px solid #e7dccc;border-radius:9px;padding:9px 12px;font:600 13px 'DM Sans';cursor:pointer;white-space:nowrap;",
+      };
+    });
+    const libCount = hiddenView
+      ? `${blocked.length} hidden recipe${blocked.length === 1 ? '' : 's'} · tap ↩ to bring one back`
+      : `${all.length - blocked.length} recipes across ${new Set(all.filter(r => !blocked.includes(r.id)).map(r => r.cuisine)).size} cuisines  ·  all batch-cook friendly`;
+
+    // ----- add -----
+    const customList = s.custom.map(r => ({
+      title: r.title,
+      meta: `${r.cuisine} · ${r.time} min · ${r.steps.length} steps`,
+      onDelete: () => this.deleteCustom(r.id),
+    }));
+    const aiAvailable = !!(window.claude && window.claude.complete);
+    const aiBadge = aiAvailable
+      ? 'Tip: a real prototype can\u2019t open external links directly, so paste the recipe text from the page. Mise structures it automatically — you just review and keep.'
+      : 'Paste the recipe text from the page below. It\u2019ll be split into editable ingredients and steps for you to tidy and keep.';
+
+    // ----- combine -----
+    const combA = this.byId(s.combineA);
+    const combB = this.byId(s.combineB);
+    const combSA = (s.combineSearchA || '').toLowerCase();
+    const combSB = (s.combineSearchB || '').toLowerCase();
+    const combFilteredA = all.filter(r => !s.blocked.includes(r.id) && r.id !== s.combineB && (!combSA || r.title.toLowerCase().includes(combSA) || r.cuisine.toLowerCase().includes(combSA)));
+    const combFilteredB = all.filter(r => !s.blocked.includes(r.id) && r.id !== s.combineA && (!combSB || r.title.toLowerCase().includes(combSB) || r.cuisine.toLowerCase().includes(combSB)));
+    const combineListA = combFilteredA.slice(0, 30).map(r => ({ title: r.title, meta: `${r.cuisine} · ${r.time} min`, onPick: () => this.setState({ combineA: r.id }) }));
+    const combineListB = combFilteredB.slice(0, 30).map(r => ({ title: r.title, meta: `${r.cuisine} · ${r.time} min`, onPick: () => this.setState({ combineB: r.id }) }));
+    const combineVals = {
+      combineASelected: !!combA, combineAEmpty: !combA,
+      combineATitle: combA ? combA.title : '', combineAMeta: combA ? `${combA.cuisine} · ${combA.time} min · ${combA.servings} meals` : '',
+      combineBSelected: !!combB, combineBEmpty: !combB,
+      combineBTitle: combB ? combB.title : '', combineBMeta: combB ? `${combB.cuisine} · ${combB.time} min · ${combB.servings} meals` : '',
+      combineSearchA: s.combineSearchA, combineSearchB: s.combineSearchB,
+      onCombineSearchA: e => this.setState({ combineSearchA: e.target.value }),
+      onCombineSearchB: e => this.setState({ combineSearchB: e.target.value }),
+      combineListA, combineListB,
+      onClearA: () => this.setState({ combineA: null, combineSearchA: '' }),
+      onClearB: () => this.setState({ combineB: null, combineSearchB: '' }),
+      hasCombined: !!(combA && combB),
+    };
+    if (combA && combB) {
+      const cIngMap = {};
+      [combA, combB].forEach(rec => (rec.ingredients || []).forEach(g => {
+        const ck = `${g.item.toLowerCase()}||${(g.unit||'').toLowerCase()}||${g.aisle}`;
+        if (cIngMap[ck]) { if (g.qty != null && cIngMap[ck].qty != null) cIngMap[ck].qty += g.qty; }
+        else cIngMap[ck] = { ...g };
+      }));
+      combineVals.combinedTitle = `${combA.title} + ${combB.title}`;
+      combineVals.combinedCuisine = combA.cuisine === combB.cuisine ? combA.cuisine : 'Fusion';
+      combineVals.combinedTime = `${combA.time + combB.time} min total`;
+      combineVals.combinedServings = `${Math.max(combA.servings, combB.servings)} meals`;
+      combineVals.combinedIngredients = Object.values(cIngMap).map(g => this.ingLabel(g));
+      combineVals.combinedStepsA = combA.steps.map((st, idx) => `${idx + 1}. ${st.text}`);
+      combineVals.combinedStepsB = combB.steps.map((st, idx) => `${idx + 1}. ${st.text}`);
+      combineVals.combinedStepsALabel = combA.title;
+      combineVals.combinedStepsBLabel = combB.title;
+      combineVals.onSaveCombined = () => this.saveCombined();
+    }
+
+    return {
+      isGenerate: s.screen === 'generate',
+      isShopping: s.screen === 'shopping',
+      isCook: s.screen === 'cook',
+      isLibrary: s.screen === 'library',
+      isAdd: s.screen === 'add',
+      isCombine: s.screen === 'combine',
+      navItems,
+
+      // generate
+      weekSummary,
+      weekRecipes,
+      hasWeek: weekObjs.length > 0,
+      noWeek: weekObjs.length === 0,
+      targetChips,
+      prefChips,
+      prefHint,
+      onShuffle: () => this.shuffleWeek(),
+      onImgErr: (e) => this.imgErr(e),
+
+      // shopping
+      aisleGroups,
+      shopSummary,
+      shopBarStyle,
+      hasShop: total > 0,
+      noShop: total === 0,
+      onUncheckAll: () => this.uncheckAll(),
+
+      // cook
+      ...cookVals,
+      onExitCook: () => this.setState({ screen: 'generate' }),
+
+      // library
+      libQuery: s.query,
+      onQuery: e => this.setState({ query: e.target.value }),
+      cuisineChips,
+      libRecipes,
+      libCount,
+
+      // add
+      addUrl: s.addUrl,
+      onUrlChange: e => this.setState({ addUrl: e.target.value }),
+      addText: s.addText,
+      onTextChange: e => this.setState({ addText: e.target.value }),
+      onParse: () => this.doParse(),
+      parsing: s.parsing,
+      parseError: s.parseError,
+      parseBtnLabel: s.parsing ? 'Reading…' : 'Parse recipe  →',
+      parseBtnStyle: s.parsing
+        ? "background:#d8b9a8;color:#fff;border:none;border-radius:11px;padding:13px 22px;font:600 15px 'DM Sans';cursor:default;"
+        : "background:#c0562f;color:#fff;border:none;border-radius:11px;padding:13px 22px;font:600 15px 'DM Sans';cursor:pointer;box-shadow:0 3px 0 #a4441f;",
+      aiBadge,
+      hasParsed: s.hasParsed,
+      pTitle: s.p.title, pCuisine: s.p.cuisine, pTime: s.p.time, pServings: s.p.servings,
+      pIngredients: s.p.ingredients, pSteps: s.p.steps, pImage: s.p.image || '',
+      onPImage: e => this.setP('image', e.target.value),
+      onPTitle: e => this.setP('title', e.target.value),
+      onPCuisine: e => this.setP('cuisine', e.target.value),
+      onPTime: e => this.setP('time', e.target.value),
+      onPServings: e => this.setP('servings', e.target.value),
+      onPIngredients: e => this.setP('ingredients', e.target.value),
+      onPSteps: e => this.setP('steps', e.target.value),
+      onSave: () => this.saveParsed(),
+      customList,
+      customCount: `${s.custom.length}`,
+      hasCustom: s.custom.length > 0,
+      noCustom: s.custom.length === 0,
+
+      // combine
+      ...combineVals,
+    };
+  }
+}
+</script>
+</body>
+</html>
